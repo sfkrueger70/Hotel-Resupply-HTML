@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hotel Resupply Request</title>
+<style>
+  :root {
+    --primary: #1F4E79;
+    --primary-dark: #163a5a;
+    --accent: #2E75B6;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --border: #d0d7de;
+    --text: #1a1a1a;
+    --muted: #5c6b7a;
+    --success: #1e7e34;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 12px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 16px 12px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    margin: -12px -12px 16px -12px;
+  }
+  .header h1 { margin: 0; font-size: 1.35rem; font-weight: 700; }
+  .header p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.9; }
+  .card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+  }
+  h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    color: var(--primary);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 12px 0 4px;
+    color: var(--primary-dark);
+  }
+  input[type="text"], input[type="date"], input[type="tel"], textarea, select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .priority-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .priority-group label {
+    flex: 1;
+    margin: 0;
+    text-align: center;
+    padding: 12px 6px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .priority-group input { display: none; }
+  .priority-group input:checked + label {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .item-row {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .item-row .remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .item-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .item-grid .full { grid-column: 1 / -1; }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+  }
+  .btn-secondary {
+    background: #6c757d;
+    margin-top: 8px;
+  }
+  .btn-success { background: var(--success); }
+  .note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+  .success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    display: none;
+  }
+  @media (min-width: 600px) {
+    body { max-width: 600px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>RESUPPLY REQUEST</h1>
+  <p>Ammunition • Vehicles • Equipment • Optics</p>
+</div>
+
+<form id="resupplyForm">
+  <div class="card">
+    <h2>1. Request Information</h2>
+    <label>Request Number (optional)</label>
+    <input type="text" name="requestNumber" placeholder="Auto or leave blank">
+
+    <label>Requesting Element</label>
+    <input type="text" name="element" required placeholder="e.g., Team Alpha / Checkpoint 3">
+
+    <label>POC Name</label>
+    <input type="text" name="pocName" required placeholder="Your name">
+
+    <label>POC Contact (optional)</label>
+    <input type="text" name="pocContact" placeholder="Signal username or other contact">
+
+    <label>Priority</label>
+    <div class="priority-group">
+      <input type="radio" id="routine" name="priority" value="Routine" required>
+      <label for="routine">Routine</label>
+      <input type="radio" id="urgent" name="priority" value="Urgent">
+      <label for="urgent">Urgent</label>
+      <input type="radio" id="emergency" name="priority" value="Emergency">
+      <label for="emergency">Emergency</label>
+    </div>
+
+    <label>Required Delivery Date</label>
+    <input type="date" name="deliveryDate" required>
+
+    <label>Delivery Location</label>
+    <input type="text" name="deliveryLocation" required placeholder="Grid, site name, or drop point">
+  </div>
+
+  <div class="card">
+    <h2>2. Items Requested</h2>
+    <p class="note">Use exact nomenclature from the Approved Item Catalog. Add as many lines as needed.</p>
+    <div id="itemsContainer"></div>
+    <button type="button" id="addItemBtn" class="btn btn-secondary">+ Add Item</button>
+  </div>
+
+  <div class="card">
+    <h2>3. Mission Justification / Special Requirements</h2>
+    <textarea name="justification" placeholder="Brief operational context or special notes (optional for routine)"></textarea>
+  </div>
+
+  <div class="card">
+    <button type="submit" class="btn btn-success">Submit Request</button>
+    <button type="button" id="resetBtn" class="btn btn-secondary" style="margin-top:10px;">Reset Form</button>
+    <p class="note">Submit prepares your request summary for Signal or email.</p>
+  </div>
+</form>
+
+<div id="success" class="success-msg">
+  <strong>Request ready.</strong><br>
+  Use “Share via Signal” to send it directly, or copy the summary.
+</div>
+
+<div id="output" class="card" style="display:none;">
+  <h2>Request Summary</h2>
+  <pre id="summary" style="white-space:pre-wrap; font-size:13px; background:#f8f9fa; padding:12px; border-radius:6px;"></pre>
+  <button type="button" id="shareBtn" class="btn btn-success" style="margin-bottom:8px;">Share via Signal</button>
+  <button type="button" id="copyBtn" class="btn">Copy Summary</button>
+  <button type="button" id="newRequestBtn" class="btn btn-secondary" style="margin-top:10px;">Start New Request</button>
+  <p class="note" style="margin-top:10px;">On most phones, “Share via Signal” opens your share menu — select Signal to send the request directly.</p>
+</div>
+
+<script>
+let itemCount = 0;
+
+function addItem() {
+  itemCount++;
+  const container = document.getElementById('itemsContainer');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.innerHTML = `
+    <button type="button" class="remove-btn">×</button>
+    <div class="item-grid">
+      <div>
+        <label>Catalog # / Nomenclature</label>
+        <input type="text" name="item_catalog_${itemCount}" placeholder="Exact catalog name" required>
+      </div>
+      <div>
+        <label>Specification</label>
+        <input type="text" name="item_spec_${itemCount}" placeholder="Caliber, model, optic, etc.">
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input type="text" name="item_qty_${itemCount}" placeholder="Qty" required>
+      </div>
+      <div>
+        <label>Unit of Issue</label>
+        <input type="text" name="item_ui_${itemCount}" placeholder="ea, rd, cs, etc.">
+      </div>
+      <div class="full">
+        <label>Notes</label>
+        <input type="text" name="item_notes_${itemCount}" placeholder="Optional">
+      </div>
+    </div>
+  `;
+  // Bind remove button
+  div.querySelector('.remove-btn').addEventListener('click', function() {
+    div.remove();
+  });
+  container.appendChild(div);
+}
+
+function resetForm() {
+  const form = document.getElementById('resupplyForm');
+  if (form) form.reset();
+  const container = document.getElementById('itemsContainer');
+  if (container) container.innerHTML = '';
+  itemCount = 0;
+  for (let i = 0; i < 3; i++) addItem();
+  const success = document.getElementById('success');
+  const output = document.getElementById('output');
+  if (success) success.style.display = 'none';
+  if (output) output.style.display = 'none';
+  if (form) form.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copySummary() {
+  const text = document.getElementById('summary').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Summary copied. Paste it into Signal or your logistics channel.');
+    }).catch(() => {
+      alert('Could not copy automatically. Please select and copy the text manually.');
+    });
+  } else {
+    alert('Clipboard not available. Please select and copy the text manually.');
+  }
+}
+
+function shareToSignal() {
+  const text = document.getElementById('summary').textContent;
+  if (navigator.share) {
+    navigator.share({
+      title: 'Hotel Resupply Request',
+      text: text
+    }).catch(() => {
+      copySummary();
+    });
+  } else {
+    copySummary();
+    alert('Share menu not available. Summary copied — paste it into Signal.');
+  }
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+  // Add initial items
+  for (let i = 0; i < 3; i++) addItem();
+
+  // Bind buttons
+  const addBtn = document.getElementById('addItemBtn');
+  if (addBtn) addBtn.addEventListener('click', addItem);
+
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', resetForm);
+
+  const shareBtn = document.getElementById('shareBtn');
+  if (shareBtn) shareBtn.addEventListener('click', shareToSignal);
+
+  const copyBtn = document.getElementById('copyBtn');
+  if (copyBtn) copyBtn.addEventListener('click', copySummary);
+
+  const newRequestBtn = document.getElementById('newRequestBtn');
+  if (newRequestBtn) newRequestBtn.addEventListener('click', resetForm);
+
+  // Form submit
+  const form = document.getElementById('resupplyForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(form);
+
+      let summary = "HOTEL RESUPPLY REQUEST\n";
+      summary += "====================\n";
+      summary += `Element: ${data.get('element') || ''}\n`;
+      summary += `POC: ${data.get('pocName') || ''}`;
+      const contact = data.get('pocContact');
+      if (contact) summary += ` (${contact})`;
+      summary += "\n";
+      summary += `Priority: ${data.get('priority') || ''}\n`;
+      summary += `Delivery Date: ${data.get('deliveryDate') || ''}\n`;
+      summary += `Location: ${data.get('deliveryLocation') || ''}\n`;
+      summary += `Request #: ${data.get('requestNumber') || 'N/A'}\n\n`;
+      summary += "ITEMS:\n";
+
+      const items = [];
+      for (let [key, value] of data.entries()) {
+        if (key.startsWith('item_catalog_') && value) {
+          const num = key.split('_')[2];
+          items.push({
+            catalog: value,
+            spec: data.get(`item_spec_${num}`) || '',
+            qty: data.get(`item_qty_${num}`) || '',
+            ui: data.get(`item_ui_${num}`) || '',
+            notes: data.get(`item_notes_${num}`) || ''
+          });
+        }
+      }
+
+      items.forEach((item, idx) => {
+        summary += `${idx+1}. ${item.catalog}`;
+        if (item.spec) summary += ` | ${item.spec}`;
+        summary += ` | Qty: ${item.qty}`;
+        if (item.ui) summary += ` ${item.ui}`;
+        if (item.notes) summary += ` | Notes: ${item.notes}`;
+        summary += "\n";
+      });
+
+      summary += `\nJUSTIFICATION:\n${data.get('justification') || 'None'}\n`;
+      summary += `\nSubmitted: ${new Date().toLocaleString()}\n`;
+
+      const summaryEl = document.getElementById('summary');
+      if (summaryEl) summaryEl.textContent = summary;
+      const output = document.getElementById('output');
+      const success = document.getElementById('success');
+      if (output) output.style.display = 'block';
+      if (success) success.style.display = 'block';
+      form.style.display = 'none';
+    });
+  }
+});
+</script>
+
+</body>
+</html>
